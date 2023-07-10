@@ -6,12 +6,11 @@ import {
 	WorkspaceLeaf,
 	ItemView,
 	moment,
-	setIcon,
 	ExtraButtonComponent,
-	TooltipOptions,
 	Notice,
+	requestUrl,
 } from "obsidian";
-import axios from "axios";
+// import axios from "axios";
 
 const CRYPTO_VIEW_TYPE = "crypto";
 
@@ -155,11 +154,12 @@ export default class CryptoPlugin extends Plugin {
 		}
 
 		try {
-			const response = await axios.get(apiUrl, {
+			const response = await requestUrl({
+				url: apiUrl,
 				headers: { "X-Api-Key": apiKey },
 			});
 
-			const fetchedSymbols = response.data?.symbols || [];
+			const fetchedSymbols = response.json?.symbols || [];
 
 			this.settings.availableSymbols = {
 				symbols: fetchedSymbols,
@@ -216,14 +216,15 @@ class CryptoView extends ItemView {
 			const cryptoDataArray: CryptoData[] = [];
 
 			for (const symbol of symbols) {
-				const url = `${apiUrl}?symbol=${symbol}`;
-				const response = await axios.get(url, {
+				const url = apiUrl + "?symbol=" + symbol;
+				const response = await requestUrl({
+					url: url,
 					headers: { "X-Api-Key": apiKey },
 				});
 
 				const cryptoData: CryptoData = {
 					symbol: symbol,
-					price: response.data?.price || "N/A",
+					price: response.json?.price || "N/A",
 					timestamp: Date.now(),
 				};
 
@@ -387,7 +388,6 @@ class CryptoSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.plugin.refreshView();
 						this.display();
-						
 					})
 			);
 		if (this.plugin.settings.apiKey) {
@@ -455,36 +455,10 @@ class CryptoSettingTab extends PluginSettingTab {
 		}
 	}
 
-	validateAndSaveSymbols() {
-		const symbols: string[] = [];
-
-		for (const symbolInput of this.symbolInputs) {
-			const symbol = symbolInput.value.trim();
-
-			if (symbol !== "") {
-				const isValid =
-					this.plugin.settings.availableSymbols.symbols.includes(
-						symbol
-					);
-				this.setSymbolInputValidity(symbolInput, isValid);
-
-				if (isValid) {
-					symbols.push(symbol);
-				}
-			} else {
-				this.setSymbolInputValidity(symbolInput, true); // Reset validity for empty input
-			}
-		}
-
-		this.plugin.settings.symbols = symbols;
-		this.plugin.saveSettings().then(() => {
-			this.plugin.refreshView();
-		});
-	}
-
 	displaySymbolInputs() {
 		// Remove all children from symbolInputsPlaceholder
 		this.symbolInputsPlaceholder.empty();
+		this.symbolInputs = []; // Clear the symbolInputs array
 
 		for (let i = 0; i < 5; i++) {
 			const symbolInputContainer = this.symbolInputsPlaceholder.createDiv(
@@ -499,10 +473,11 @@ class CryptoSettingTab extends PluginSettingTab {
 			symbolInput.value = this.plugin.settings.symbols[i] || "";
 
 			symbolInput.addEventListener("input", () => {
-				this.validateAndSaveSymbols();
+				this.validateAndSaveSymbol(i);
 			});
 
-			this.setSymbolInputValidity(symbolInput, true);
+			// Validate and save symbol after it is populated from settings
+			this.validateAndSaveSymbol(i);
 		}
 	}
 
@@ -511,11 +486,12 @@ class CryptoSettingTab extends PluginSettingTab {
 		const apiUrl = "https://api.api-ninjas.com/v1/cryptosymbols";
 
 		try {
-			const response = await axios.get(apiUrl, {
+			const response = await requestUrl({
+				url: apiUrl,
 				headers: { "X-Api-Key": apiKey },
 			});
 
-			const availableSymbols = response.data;
+			const availableSymbols = response.json;
 
 			this.plugin.settings.availableSymbols = availableSymbols;
 			await this.plugin.saveSettings();
@@ -523,6 +499,31 @@ class CryptoSettingTab extends PluginSettingTab {
 			console.error("Failed to fetch symbols", error);
 			throw error;
 		}
+	}
+
+	validateAndSaveSymbol(index: number) {
+		const symbolInput = this.symbolInputs[index];
+		const symbol = symbolInput.value.trim();
+
+		if (symbol !== "") {
+			const isValid =
+				this.plugin.settings.availableSymbols.symbols.includes(symbol);
+			this.setSymbolInputValidity(symbolInput, isValid);
+
+			if (isValid) {
+				this.plugin.settings.symbols[index] = symbol;
+			}
+		} else {
+			this.setSymbolInputValidity(symbolInput, true); // Reset validity for empty input
+
+			if (index > -1) {
+				this.plugin.settings.symbols.splice(index, 1);
+			}
+		}
+
+		this.plugin.saveSettings().then(async () => {
+			await this.plugin.refreshView();
+		});
 	}
 
 	setSymbolInputValidity(symbolInput: HTMLInputElement, isValid: boolean) {
