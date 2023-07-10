@@ -1,0 +1,191 @@
+/* @settings
+
+name: Crypto
+id: crypto
+settings:
+    -
+        id: crypto-background
+        title: Background Color
+        description: Set the color of the timezone block background
+        type: variable-themed-color
+        opacity: true
+        format: hex
+        default-light: '#d7dff0'
+        default-dark: '#1c2732'
+
+    -
+        id: crypto-main-text
+        title: Main Text Color
+        description: Set the color of the main text 
+        type: variable-themed-color
+        opacity: true
+        format: hex
+        default-dark: '#aabed8'
+        default-light: '#497fa0'
+    -
+        id: crypto-secondary-text
+        title: Secondary Text Color
+        description: Set the color of the secondary text 
+        type: variable-themed-color
+        opacity: true
+        format: hex
+        default-dark: '#7b96b3'
+        default-light: '#9fabb3'
+
+    -
+        id: crypto-highlight
+        title: Highlight Color
+        description: Set the highlight color
+        type: variable-themed-color
+        opacity: true
+        format: hex
+        default-dark: '#6a85a3'
+        default-light: '#6a85a3'
+
+    -
+        id: crypto-border
+        title: Border Color
+        description: Set the border color 
+        type: variable-themed-color
+        opacity: true
+        format: hex
+        default-dark: '#3a4e58'
+        default-light: '#88a0b9'
+
+*/
+
+.theme-dark {
+	--crypto-background: #1c2732;
+	--crypto-main-text: #aabed8;
+	--crypto-secondary-text: #7b96b3;
+	--crypto-highlight: #427bbf;
+	--crypto-border: #3a4e58;
+}
+
+.theme-light {
+	--crypto-background: #e5e9f2;
+	--crypto-main-text: #497fa0;
+	--crypto-secondary-text: #9fabb3;
+	--crypto-highlight: #6a85a3;
+	--crypto-border: #88a0b9;
+}
+
+.crypto-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+}
+
+.crypto-info {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 5px;
+  background: var(--crypto-background);
+  border: 2px solid var(--crypto-border);
+}
+
+.crypto-symbol {
+  font-size: 1.4em;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px var(--crypto-secondary-text);
+  color: var(--crypto-main-text);
+}
+
+.crypto-price {
+  font-size: 1.2em;
+  color: var(--crypto-secondary-text);
+}
+
+.crypto-timestamp {
+  font-size: 0.6em;
+  margin-top: 5px;
+  color: var(--crypto-secondary-text);
+}
+
+.crypto-symbol-input {
+  margin-bottom: 5px;
+}
+
+.crypto-valid {
+  border-color: green !important;
+  color: green !important;
+}
+
+.crypto-invalid {
+  border-color: red !important;
+  color: red !important;
+}
+
+.crypto-refresh-button {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  opacity: var(--icon-opacity, 0.3);
+  --icon-opacity: 0.6;
+  --icon-size: 20px;
+  color: var(--crypto-secondary-text);
+}
+
+.crypto-refresh-button:hover {
+  transform: rotate(45deg);
+  --icon-opacity: 1;
+  --icon-color: var(--crypto-highlight);
+}
+
+.symbol-inputs-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.symbol-input-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.crypto-symbol-input {
+  flex: 1;
+}
+
+.symbol-input-icon {
+  margin-left: 5px;
+}
+
+
+.symbol-settings {
+  color: var(--crypto-highlight) !important;
+}
+
+/* Donation Styling */
+.recent-files-donation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donate-text {
+  text-align: center;
+  margin-bottom: 5px; 
+}
+
+.donate-img {
+  width: 163px;
+  height: 45px !important;
+  border-radius: 10px;
+}
+
+.donate-img:hover {
+  border: 2px solid red;
+  border-radius: 10px;
+}
+
+
+
