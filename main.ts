@@ -87,9 +87,9 @@ export default class CryptoPlugin extends Plugin {
 			}
 		});
 
-		if (this.settings.apiKey) {
-			await this.fetchAvailableSymbols(); // Fetch available symbols on plugin load
-		}
+		// if (this.settings.apiKey) {
+		// 	await this.fetchAvailableSymbols(); // Fetch available symbols on plugin load
+		// }
 
 		this.addSettingTab(new CryptoSettingTab(this.app, this));
 	}
@@ -142,32 +142,6 @@ export default class CryptoPlugin extends Plugin {
 				() => this.view.displayCryptoData(),
 				this.settings.refreshInterval * 1000
 			);
-		}
-	}
-
-	async fetchAvailableSymbols(): Promise<void> {
-		const apiKey = this.settings.apiKey;
-		const apiUrl = "https://api.api-ninjas.com/v1/cryptosymbols";
-
-		if (!apiKey) {
-			return;
-		}
-
-		try {
-			const response = await requestUrl({
-				url: apiUrl,
-				headers: { "X-Api-Key": apiKey },
-			});
-
-			const fetchedSymbols = response.json?.symbols || [];
-
-			this.settings.availableSymbols = {
-				symbols: fetchedSymbols,
-			};
-			await this.saveSettings();
-			new Notice("Symbols have been updated");
-		} catch (error) {
-			console.error("Failed to fetch available symbols", error);
 		}
 	}
 }
@@ -294,7 +268,7 @@ class CryptoView extends ItemView {
 
 		const symbolDiv = document.createElement("div");
 		symbolDiv.className = "crypto-symbol";
-		symbolDiv.textContent = cryptoData.symbol;
+		symbolDiv.textContent = cryptoData.symbol.toUpperCase();
 
 		if (
 			this.plugin.settings.availableSymbols.symbols.includes(
@@ -378,7 +352,18 @@ class CryptoSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("API Key")
-			.setDesc("Enter your API key")
+			.setDesc(
+				createFragment((fragment) => {
+					fragment.append(
+						"Enter your API Key",
+						fragment.createEl("br"),
+						fragment.createEl("a", {
+							text: "Get your free key here",
+							href: "https://api-ninjas.com/",
+						})
+					);
+				})
+			)
 			.addText((text) =>
 				text
 					.setPlaceholder("Enter API key")
@@ -388,6 +373,9 @@ class CryptoSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 						this.plugin.refreshView();
 						this.display();
+						if (this.plugin.settings.apiKey) {
+							await this.fetchSymbols();
+						}
 					})
 			);
 		if (this.plugin.settings.apiKey) {
@@ -433,21 +421,13 @@ class CryptoSettingTab extends PluginSettingTab {
 					cls: "fetching-symbols-text",
 				});
 
-				try {
-					// Fetch available symbols
-					await this.fetchSymbols();
+				// Fetch available symbols
+				await this.fetchSymbols();
 
-					// Remove fetching symbols text
-					if (this.fetchingSymbolsText) {
-						this.fetchingSymbolsText.remove();
-						this.fetchingSymbolsText = null;
-					}
+				// Remove fetching symbols text
 
-					// Display symbol inputs
-					this.displaySymbolInputs();
-				} catch (error) {
-					console.error("Failed to fetch symbols", error);
-				}
+				this.fetchingSymbolsText.remove();
+				this.fetchingSymbolsText = null;
 			} else {
 				// Display symbol inputs
 				this.displaySymbolInputs();
@@ -495,19 +475,26 @@ class CryptoSettingTab extends PluginSettingTab {
 
 			this.plugin.settings.availableSymbols = availableSymbols;
 			await this.plugin.saveSettings();
+			new Notice("Successfully fetched symbols");
 		} catch (error) {
 			console.error("Failed to fetch symbols", error);
-			throw error;
+			new Notice(
+				"Failed to fetch symbols. Check your API key and internet connection."
+			);
+			throw error; // propagate the error so that the calling function knows there was a problem
+		} finally {
+			this.displaySymbolInputs(); // Display symbol inputs
 		}
 	}
 
 	validateAndSaveSymbol(index: number) {
 		const symbolInput = this.symbolInputs[index];
-		const symbol = symbolInput.value.trim();
+		const symbol = symbolInput.value.trim().toLowerCase(); // convert symbol to lowercase
 
 		if (symbol !== "") {
-			const isValid =
-				this.plugin.settings.availableSymbols.symbols.includes(symbol);
+			const isValid = this.plugin.settings.availableSymbols.symbols
+				.map((sym) => sym.toLowerCase()) // convert each symbol in the list to lowercase
+				.includes(symbol);
 			this.setSymbolInputValidity(symbolInput, isValid);
 
 			if (isValid) {

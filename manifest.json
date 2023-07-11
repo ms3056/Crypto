@@ -1,7 +1,7 @@
 {
 	"id": "crypto",
 	"name": "Crypto",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"minAppVersion": "0.15.0",
 	"description": "This is a simple crypto currency display.",
 	"author": "HiroMike",
