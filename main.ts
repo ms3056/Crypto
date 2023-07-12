@@ -87,10 +87,6 @@ export default class CryptoPlugin extends Plugin {
 			}
 		});
 
-		// if (this.settings.apiKey) {
-		// 	await this.fetchAvailableSymbols(); // Fetch available symbols on plugin load
-		// }
-
 		this.addSettingTab(new CryptoSettingTab(this.app, this));
 	}
 
@@ -446,8 +442,17 @@ class CryptoSettingTab extends PluginSettingTab {
 			);
 
 			const symbolInput = symbolInputContainer.createEl("input", {
-				attr: { type: "text", placeholder: "Enter symbol" },
+				attr: {
+					type: "text",
+					placeholder: "Enter symbol",
+					optional: true,
+				},
+				cls: "crypto-input", // Added CSS class "input"
 			}) as HTMLInputElement;
+
+			// const symbolInput = symbolInputContainer.createEl("input", {
+			// 	attr: { type: "text", placeholder: "Enter symbol" },
+			// }) as HTMLInputElement;
 			this.symbolInputs.push(symbolInput);
 
 			symbolInput.value = this.plugin.settings.symbols[i] || "";
@@ -532,6 +537,7 @@ class CryptoSettingTab extends PluginSettingTab {
 				// Empty input, add dot icon
 				symbolInput.classList.remove("crypto-valid");
 				symbolInput.classList.remove("crypto-invalid");
+				symbolInput.classList.add("crypto-empty");
 
 				new ExtraButtonComponent(icon)
 					.setIcon("text-cursor-input")
@@ -543,6 +549,7 @@ class CryptoSettingTab extends PluginSettingTab {
 				// Valid symbol, add thumbs-up icon
 				symbolInput.classList.remove("crypto-invalid");
 				symbolInput.classList.add("crypto-valid");
+				symbolInput.classList.remove("crypto-empty");
 
 				new ExtraButtonComponent(icon)
 					.setIcon("thumbs-up")
@@ -554,6 +561,7 @@ class CryptoSettingTab extends PluginSettingTab {
 				// Invalid symbol, add thumbs-down icon
 				symbolInput.classList.remove("crypto-valid");
 				symbolInput.classList.add("crypto-invalid");
+				symbolInput.classList.remove("crypto-empty");
 
 				new ExtraButtonComponent(icon)
 					.setIcon("thumbs-down")

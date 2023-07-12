@@ -107,36 +107,59 @@ settings:
   color: var(--crypto-secondary-text);
 }
 
-.crypto-symbol-input {
-  margin-bottom: 5px;
+.crypto-input {
+  border: 2px solid !important;
+  border-radius: 4px !important;
+  font-size: 1rem !important;
+  margin: 0.25rem !important;
+  min-width: 125px !important;
+  padding: 0.5rem !important;
+  transition: border-color 0.5s ease-out !important;
+}
+
+.crypto-empty {
+  color: white !important;
+  border-color: slategrey !important;
 }
 
 .crypto-valid {
   border-color: green !important;
-  color: green !important;
+  color: white !important;
+  /* background: url("https://assets.digitalocean.com/labs/icons/hand-thumbs-up.svg") no-repeat 95% 50% rgb(73, 147, 73) !important; */
+  background: rgb(73, 147, 73) !important;
+  background-size: 25px !important;
 }
 
 .crypto-invalid {
   border-color: red !important;
-  color: red !important;
+  color: white !important;
+  /* background: url("https://assets.digitalocean.com/labs/icons/exclamation-triangle-fill.svg") no-repeat 95% 50% rgb(255, 135, 135) !important; */
+  background: rgb(255, 135, 135) !important;
+  background-size: 25px !important;
 }
 
 .crypto-refresh-button {
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  cursor: pointer;
-  transition: transform 0.3s ease-in-out;
-  opacity: var(--icon-opacity, 0.3);
-  --icon-opacity: 0.6;
-  --icon-size: 20px;
-  color: var(--crypto-secondary-text);
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	cursor: pointer;
+	transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+	opacity: var(--icon-opacity, 0.3);
+	--icon-opacity: 0.7;
+	--icon-size: 20px;
+	color: var(--crypto-main-text);
+	border: none;
+	background-color: transparent;
 }
 
-.crypto-refresh-button:hover {
-  transform: rotate(45deg);
-  --icon-opacity: 1;
-  --icon-color: var(--crypto-highlight);
+.crypto-refresh-button:hover, 
+.clickable-icon.setting-editor-extra-setting-button:hover {
+	transform: rotate(45deg);
+	--icon-opacity: 1;
+	--icon-color: var(--crypto-highlight) !important;
+	background-color: transparent !important;
+	border: none !important;
+	color: var(--crypto-highlight) !important;
 }
 
 .symbol-inputs-container {
@@ -185,6 +208,37 @@ settings:
 .donate-img:hover {
   border: 2px solid red;
   border-radius: 10px;
+}
+
+input {
+  /* border: 2px solid;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin: 0.25rem;
+  min-width: 125px;
+  padding: 0.5rem;
+  transition: border-color 0.5s ease-out; */
+}
+input:optional {
+  /* border-color: gray; */
+}
+input:required:valid {
+  /* border-color: green; */
+}
+input:invalid {
+  /* border-color: red; */
+  /* background: url("https://assets.digitalocean.com/labs/icons/exclamation-triangle-fill.svg") no-repeat 95% 50% rgb(251, 80, 80);
+  background-size: 25px; */
+}
+
+input:required:focus:valid {
+  /* background: url("https://assets.digitalocean.com/labs/icons/hand-thumbs-up.svg") no-repeat 95% 50% lightgreen;
+  background-size: 25px; */
+}
+
+input:optional:focus:invalid {
+  /* background: url("https://assets.digitalocean.com/labs/icons/exclamation-triangle-fill.svg") no-repeat 95% 50% rgb(251, 80, 80);
+  background-size: 25px; */
 }
 
 
