@@ -134,10 +134,9 @@ export default class CryptoPlugin extends Plugin {
 		if (this.view) {
 			this.view.displayCryptoData();
 			this.clearUpdateInterval();
-			this.updateInterval = setInterval(
-				() => this.view.displayCryptoData(),
-				this.settings.refreshInterval * 1000
-			);
+			this.updateInterval = setInterval(() => {
+				this.view.displayCryptoData();
+			}, this.settings.refreshInterval * 1000);
 		}
 	}
 }
@@ -200,7 +199,7 @@ class CryptoView extends ItemView {
 
 				cryptoDataArray.push(cryptoData);
 			}
-
+			new Notice("Crypto data refreshed"); 
 			return cryptoDataArray;
 		} catch (error) {
 			console.error("Failed to fetch crypto data", error);
