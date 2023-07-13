@@ -42,6 +42,8 @@ export default class CryptoPlugin extends Plugin {
 	view: CryptoView;
 	settings: CryptoSettings;
 	updateInterval: NodeJS.Timeout | null = null;
+	lastFetch = 0;
+
 
 	public async onload(): Promise<void> {
 		this.settings = Object.assign(
@@ -136,6 +138,7 @@ export default class CryptoPlugin extends Plugin {
 			this.clearUpdateInterval();
 			this.updateInterval = setInterval(() => {
 				this.view.displayCryptoData();
+				this.lastFetch = Date.now(); // update the lastFetch timestamp after every refresh
 			}, this.settings.refreshInterval * 1000);
 		}
 	}
@@ -199,7 +202,7 @@ class CryptoView extends ItemView {
 
 				cryptoDataArray.push(cryptoData);
 			}
-			new Notice("Crypto data refreshed"); 
+			new Notice("Crypto data refreshed");
 			return cryptoDataArray;
 		} catch (error) {
 			console.error("Failed to fetch crypto data", error);
@@ -208,53 +211,63 @@ class CryptoView extends ItemView {
 	}
 
 	displayCryptoData() {
-		this.fetchCryptoData()
-			.then((cryptoDataArray) => {
-				console.log("Crypto data:", cryptoDataArray); // added console log
-				const symbols = this.plugin.settings.symbols;
-				const filteredCryptoDataArray = cryptoDataArray?.filter(
-					(cryptoData) => symbols.includes(cryptoData.symbol)
-				);
+		const timeSinceLastFetch = Date.now() - this.plugin.lastFetch;
 
-				console.log("Filtered data:", filteredCryptoDataArray); // added console log
-
-				this.containerEl.empty();
-
-				if (
-					symbols.length > 0 &&
-					filteredCryptoDataArray &&
-					filteredCryptoDataArray.length > 0
-				) {
-					this.cryptoContainer =
-						this.containerEl.createDiv("crypto-container");
-
-					const refreshButton = this.cryptoContainer.createDiv(
-						"crypto-refresh-button"
-					);
-					refreshButton.onclick = () => {
-						this.plugin.refreshView();
-					};
-
-					// Create the ExtraButtonComponent and set the icon and tooltip
-					new ExtraButtonComponent(refreshButton)
-						.setIcon("refresh-ccw")
-						.setTooltip("Refresh", { placement: "top" });
-
-					this.cryptoInfoContainer = this.cryptoContainer.createDiv(
-						"crypto-info-container"
+		// Only fetch new data if at least 5 minutes have passed since the last fetch
+		if (timeSinceLastFetch > 5 * 60 * 1000) {
+			// 5 minutes
+			this.fetchCryptoData()
+				.then((cryptoDataArray) => {
+					console.log("Crypto data:", cryptoDataArray); // added console log
+					const symbols = this.plugin.settings.symbols;
+					const filteredCryptoDataArray = cryptoDataArray?.filter(
+						(cryptoData) => symbols.includes(cryptoData.symbol)
 					);
 
-					filteredCryptoDataArray.forEach((cryptoData) => {
-						const cryptoInfo = this.createCryptoInfo(cryptoData);
-						this.cryptoInfoContainer.appendChild(cryptoInfo);
-					});
-				} else {
-					console.log("No data to display"); // added console log
-				}
-			})
-			.catch((error) => {
-				console.error("Failed to fetch crypto data", error);
-			});
+					console.log("Filtered data:", filteredCryptoDataArray); // added console log
+
+					this.containerEl.empty();
+
+					if (
+						symbols.length > 0 &&
+						filteredCryptoDataArray &&
+						filteredCryptoDataArray.length > 0
+					) {
+						this.cryptoContainer =
+							this.containerEl.createDiv("crypto-container");
+
+						const refreshButton = this.cryptoContainer.createDiv(
+							"crypto-refresh-button"
+						);
+						refreshButton.onclick = () => {
+							this.plugin.refreshView();
+						};
+
+						// Create the ExtraButtonComponent and set the icon and tooltip
+						new ExtraButtonComponent(refreshButton)
+							.setIcon("refresh-ccw")
+							.setTooltip("Refresh", { placement: "top" });
+
+						this.cryptoInfoContainer =
+							this.cryptoContainer.createDiv(
+								"crypto-info-container"
+							);
+
+						filteredCryptoDataArray.forEach((cryptoData) => {
+							const cryptoInfo =
+								this.createCryptoInfo(cryptoData);
+							this.cryptoInfoContainer.appendChild(cryptoInfo);
+						});
+					} else {
+						console.log("No data to display"); // added console log
+					}
+
+					this.plugin.lastFetch = Date.now(); // Update lastFetch timestamp after fetching data
+				})
+				.catch((error) => {
+					console.error("Failed to fetch crypto data", error);
+				});
+		}
 	}
 
 	createCryptoInfo(cryptoData: CryptoData) {
