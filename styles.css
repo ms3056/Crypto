@@ -152,14 +152,14 @@ settings:
 	background-color: transparent;
 }
 
-.crypto-refresh-button:hover, 
-.clickable-icon.setting-editor-extra-setting-button:hover {
-	transform: rotate(45deg);
-	--icon-opacity: 1;
-	--icon-color: var(--crypto-highlight) !important;
-	background-color: transparent !important;
-	border: none !important;
-	color: var(--crypto-highlight) !important;
+/* Target ONLY this refresh button */
+.crypto-refresh-button[data-app-id="crypto"]:hover {
+  transform: rotate(45deg);
+  --icon-opacity: 1;
+  --icon-color: var(--crypto-highlight) !important;
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--crypto-highlight) !important;
 }
 
 .symbol-inputs-container {

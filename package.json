@@ -1,6 +1,6 @@
 {
 	"name": "crypto",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"description": "This is a simple crypto currency display.",
 	"main": "main.js",
 	"scripts": {

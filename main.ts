@@ -44,7 +44,6 @@ export default class CryptoPlugin extends Plugin {
 	updateInterval: NodeJS.Timeout | null = null;
 	lastFetch = 0;
 
-
 	public async onload(): Promise<void> {
 		this.settings = Object.assign(
 			{},
@@ -242,6 +241,8 @@ class CryptoView extends ItemView {
 						refreshButton.onclick = () => {
 							this.plugin.refreshView();
 						};
+
+						refreshButton.setAttribute("data-app-id", "crypto");
 
 						// Create the ExtraButtonComponent and set the icon and tooltip
 						new ExtraButtonComponent(refreshButton)
